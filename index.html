@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0A0B0F" />
+    <link rel="icon" type="image/png" href="./icons/icon-order-192.png" />
+    <title>Bass &amp; Brew POS — Cổng Kết Nối Cố Định</title>
+    <link rel="stylesheet" href="./portal.css?v=1" />
+</head>
+<body>
+    <main class="portal-card">
+        <img src="./images/logo-full.png" alt="Bass &amp; Brew" class="portal-logo" />
+        <div class="neon-line"></div>
+        <div class="portal-status loading">Cổng Kết Nối Cố Định Bass &amp; Brew</div>
+        <p class="portal-detail">Chọn màn hình muốn vào — tự động nối tới máy chủ mới nhất không cần quét lại mã QR:</p>
+        <a id="go-order" href="./order.html" class="btn btn-primary">📱 Vào màn hình Order (Ngoài bàn)</a>
+        <a id="go-bar" href="./bar.html" class="btn btn-secondary">🔔 Vào màn hình Pha Chế (Quầy Bar)</a>
+    </main>
+    <script>
+        (function () {
+            const g = new URLSearchParams(window.location.search).get('g');
+            if (g) {
+                document.getElementById('go-order').href = './order.html?g=' + encodeURIComponent(g);
+                document.getElementById('go-bar').href = './bar.html?g=' + encodeURIComponent(g);
+            }
+        })();
+    </script>
+</body>
+</html>
