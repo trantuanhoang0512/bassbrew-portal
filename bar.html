@@ -13,22 +13,28 @@
     <link rel="apple-touch-icon" sizes="512x512" href="./icons/icon-bar-512.png" />
     <link rel="icon" type="image/png" href="./icons/icon-bar-192.png" />
     <title>Bass &amp; Brew — Pha Chế</title>
-    <link rel="stylesheet" href="./portal.css?v=1" />
+    <link rel="stylesheet" href="./portal.css?v=2" />
 </head>
 <body data-target="/bar">
     <main class="portal-card">
         <img src="./images/logo-full.png" alt="Bass &amp; Brew" class="portal-logo" />
         <div class="neon-line"></div>
-        <div class="role-badge role-bar">🔔 QUẦY PHA CHẾ — CỔNG CỐ ĐỊNH</div>
+        <div class="role-badge role-bar">🔔 QUẦY PHA CHẾ — CỔNG CỐ ĐỊNH 0Đ</div>
         <div id="portal-spinner" class="spinner"></div>
         <div id="portal-status" class="portal-status loading">🔄 Đang tìm máy chủ Bass &amp; Brew...</div>
         <p id="portal-detail" class="portal-detail">Tự động nối tới đường truyền mới nhất của laptop quầy thu ngân.</p>
+        <a id="portal-open-btn" href="#" class="btn btn-primary" style="display:none;">🚀 Vào màn hình Pha Chế (Bar) ngay</a>
         <button id="portal-retry-btn" type="button" class="btn btn-primary">🔄 Thử kết nối lại ngay</button>
+        <div id="portal-pin-guide" class="pin-guide">
+            <b>📌 Mẹo ghim 1 lần dùng mãi mãi (không bao giờ 502):</b><br />
+            1. Ngay tại màn hình này, bấm nút <b>Chia sẻ (↑)</b> ở đáy Safari.<br />
+            2. Chọn <b>Thêm vào MH chính (Add to Home Screen)</b>.<br />
+            3. Từ lần sau bấm icon ngoài màn hình sẽ <b>TỰ ĐỘNG vào thẳng Bar</b> dù laptop đổi link 4G!
+        </div>
         <div class="portal-footer">
-            Ghim trang này ra màn hình chính iPhone 1 lần — dùng mãi mãi không đổi link!<br />
             <a id="portal-switch-link" href="./order.html">📱 Chuyển sang màn hình Order</a>
         </div>
     </main>
-    <script src="./portal.js?v=1"></script>
+    <script src="./portal.js?v=2"></script>
 </body>
 </html>

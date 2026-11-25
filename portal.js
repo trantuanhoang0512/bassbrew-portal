@@ -4,7 +4,14 @@
 
     const params = new URLSearchParams(window.location.search);
     const paramGist = (params.get('g') || '').trim();
+    const forceAuto = params.get('auto') === '1';
     const targetPath = (document.body.getAttribute('data-target') || '/order').trim();
+    const isBar = targetPath.toLowerCase().includes('bar');
+
+    // Phát hiện đang mở từ icon đã ghim ngoài màn hình chính (PWA standalone)
+    const isStandalone =
+        window.navigator.standalone === true ||
+        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
 
     let gistId = DEFAULT_GIST_ID;
     if (/^[a-f0-9]{20,64}$/i.test(paramGist)) {
@@ -19,7 +26,9 @@
 
     const statusEl = document.getElementById('portal-status');
     const detailEl = document.getElementById('portal-detail');
+    const openBtn = document.getElementById('portal-open-btn');
     const retryBtn = document.getElementById('portal-retry-btn');
+    const pinGuideEl = document.getElementById('portal-pin-guide');
     const spinnerEl = document.getElementById('portal-spinner');
     const switchLink = document.getElementById('portal-switch-link');
 
@@ -30,16 +39,29 @@
         }
     }
 
+    // Ẩn khung hướng dẫn ghim khi đã mở từ icon ngoài màn hình chính
+    if (pinGuideEl && isStandalone) {
+        pinGuideEl.style.display = 'none';
+    }
+
     let retryTimer = null;
     let checking = false;
+    let currentDestUrl = '';
 
-    function setState(kind, headline, detail) {
+    function setState(kind, headline, detail, showOpenBtn) {
         if (statusEl) {
             statusEl.textContent = headline;
             statusEl.className = 'portal-status ' + kind;
         }
         if (detailEl) detailEl.textContent = detail || '';
         if (spinnerEl) spinnerEl.style.display = kind === 'loading' ? 'inline-block' : 'none';
+        if (openBtn) {
+            openBtn.style.display = showOpenBtn && currentDestUrl ? 'inline-flex' : 'none';
+            if (currentDestUrl) openBtn.href = currentDestUrl;
+        }
+        if (retryBtn) {
+            retryBtn.style.display = showOpenBtn ? 'none' : 'inline-flex';
+        }
     }
 
     async function fetchLivePointer() {
@@ -110,14 +132,16 @@
 
         setState('loading',
             manual ? '🔄 Đang kiểm tra lại máy chủ...' : '🔄 Đang tìm máy chủ Bass & Brew mới nhất...',
-            'Đang tự động kết nối tới laptop tại quầy (0đ, không cần quét lại mã QR).');
+            'Đang tự động kết nối tới laptop tại quầy (0đ, không cần quét lại mã QR).',
+            false);
 
         try {
             const data = await fetchLivePointer();
             if (!data) {
                 setState('warn',
                     '⚠️ Chưa tải được địa chỉ máy chủ',
-                    'Hãy kiểm tra mạng 4G/Wi-Fi trên điện thoại. Trang sẽ tự thử lại sau 4 giây...');
+                    'Hãy kiểm tra mạng 4G/Wi-Fi trên điện thoại. Trang sẽ tự thử lại sau 4 giây...',
+                    false);
                 scheduleRetry();
                 return;
             }
@@ -128,34 +152,47 @@
             const updatedAt = (data.updatedAt || '').trim();
 
             if (st === 'closed' || !liveUrl) {
+                currentDestUrl = '';
                 setState('closed',
                     `🔌 Máy chủ ${shop} hiện đang đóng phiên`,
                     (updatedAt ? `Cập nhật lúc ${updatedAt}. ` : '') +
-                    'Ngay khi thu ngân mở app trên laptop, màn hình này sẽ tự động vào ngay!');
+                    'Ngay khi thu ngân mở app trên laptop, màn hình này sẽ tự động cập nhật ngay!',
+                    false);
                 scheduleRetry();
                 return;
             }
 
             if (!/^https:\/\/[a-z0-9.-]+$/i.test(liveUrl)) {
-                setState('warn', '⚠️ Địa chỉ máy chủ chưa sẵn sàng', 'Đang chờ laptop đồng bộ đường truyền mới...');
+                currentDestUrl = '';
+                setState('warn', '⚠️ Địa chỉ máy chủ chưa sẵn sàng', 'Đang chờ laptop đồng bộ đường truyền mới...', false);
                 scheduleRetry();
                 return;
             }
 
-            setState('loading', `⚡ Đang nối tới máy chủ ${shop}...`, 'Đang xác nhận máy chủ đang hoạt động để tránh lỗi 502...');
+            setState('loading', `⚡ Đang nối tới máy chủ ${shop}...`, 'Đang xác nhận máy chủ đang hoạt động để tránh lỗi 502...', false);
             const alive = await probeServerOnline(liveUrl);
 
             if (alive) {
-                setState('ok', `✅ Đã kết nối ${shop}! Đang mở...`, '');
-                const dest = `${liveUrl}${targetPath}`;
-                window.location.replace(dest);
+                currentDestUrl = `${liveUrl}${targetPath}`;
+                if (isStandalone || forceAuto) {
+                    setState('ok', `✅ Đã kết nối ${shop}! Đang vào ngay...`, '', false);
+                    window.location.replace(currentDestUrl);
+                    return;
+                }
+                // Đang mở trên trình duyệt Safari lần đầu (quét QR): giữ trang ở link cố định để ghim chuẩn "Thêm vào MH chính"!
+                setState('ok',
+                    `🟢 Máy chủ ${shop} đang sẵn sàng!`,
+                    'Hãy ghim trang này ra Màn hình chính NGAY BÂY GIỜ (làm 1 lần duy nhất), hoặc bấm nút bên dưới để vào bán hàng ngay.',
+                    true);
                 return;
             }
 
+            currentDestUrl = '';
             setState('closed',
                 `⏳ Máy chủ ${shop} đang khởi động hoặc tạm tắt`,
                 (updatedAt ? `Lần mở gần nhất: ${updatedAt}. ` : '') +
-                'Hãy đảm bảo app Bass & Brew trên laptop đang mở — điện thoại sẽ tự vào ngay sau 4 giây khi sẵn sàng!');
+                'Hãy đảm bảo app Bass & Brew trên laptop đang mở — điện thoại sẽ tự kiểm tra lại sau 4 giây!',
+                false);
             scheduleRetry();
         } finally {
             checking = false;
@@ -172,6 +209,10 @@
             runCheck(false);
         }
     });
+
+    if (openBtn) {
+        openBtn.textContent = isBar ? '🚀 Vào màn hình Pha Chế (Bar) ngay' : '🚀 Vào màn hình Order ngay';
+    }
 
     runCheck(false);
 })();

@@ -122,6 +122,18 @@ html, body {
     color: #7DD3FC;
     margin-top: 10px;
 }
+.pin-guide {
+    margin-top: 14px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    background: rgba(255, 138, 61, 0.10);
+    border: 1px solid rgba(255, 138, 61, 0.36);
+    text-align: left;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #FDE68A;
+}
+.pin-guide b { color: #FFF7ED; }
 .portal-footer {
     margin-top: 16px;
     padding-top: 12px;
