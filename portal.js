@@ -44,7 +44,6 @@
         pinGuideEl.style.display = 'none';
     }
 
-    let retryTimer = null;
     let checking = false;
     let currentDestUrl = '';
 
@@ -119,15 +118,9 @@
         }
     }
 
-    function scheduleRetry() {
-        if (retryTimer) clearTimeout(retryTimer);
-        retryTimer = setTimeout(() => runCheck(false), 4000);
-    }
-
     async function runCheck(manual) {
         if (checking) return;
         checking = true;
-        if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
         if (retryBtn) retryBtn.disabled = true;
 
         setState('loading',
@@ -140,9 +133,8 @@
             if (!data) {
                 setState('warn',
                     '⚠️ Chưa tải được địa chỉ máy chủ',
-                    'Hãy kiểm tra mạng 4G/Wi-Fi trên điện thoại. Trang sẽ tự thử lại sau 4 giây...',
+                    'Hãy kiểm tra mạng 4G/Wi-Fi trên điện thoại rồi bấm nút bên dưới để thử lại.',
                     false);
-                scheduleRetry();
                 return;
             }
 
@@ -156,16 +148,14 @@
                 setState('closed',
                     `🔌 Máy chủ ${shop} hiện đang đóng phiên`,
                     (updatedAt ? `Cập nhật lúc ${updatedAt}. ` : '') +
-                    'Ngay khi thu ngân mở app trên laptop, màn hình này sẽ tự động cập nhật ngay!',
+                    'Khi nào laptop tại quầy đã mở phần mềm và báo xanh 3G/4G, hãy bấm "Thử kết nối lại ngay" bên dưới.',
                     false);
-                scheduleRetry();
                 return;
             }
 
             if (!/^https:\/\/[a-z0-9.-]+$/i.test(liveUrl)) {
                 currentDestUrl = '';
-                setState('warn', '⚠️ Địa chỉ máy chủ chưa sẵn sàng', 'Đang chờ laptop đồng bộ đường truyền mới...', false);
-                scheduleRetry();
+                setState('warn', '⚠️ Địa chỉ máy chủ chưa sẵn sàng', 'Chờ laptop đồng bộ xong rồi bấm "Thử kết nối lại ngay".', false);
                 return;
             }
 
@@ -191,9 +181,8 @@
             setState('closed',
                 `⏳ Máy chủ ${shop} đang khởi động hoặc tạm tắt`,
                 (updatedAt ? `Lần mở gần nhất: ${updatedAt}. ` : '') +
-                'Hãy đảm bảo app Bass & Brew trên laptop đang mở — điện thoại sẽ tự kiểm tra lại sau 4 giây!',
+                'Hãy đảm bảo app Bass & Brew trên laptop đang mở rồi bấm "Thử kết nối lại ngay" bên dưới.',
                 false);
-            scheduleRetry();
         } finally {
             checking = false;
             if (retryBtn) retryBtn.disabled = false;
@@ -204,15 +193,10 @@
         retryBtn.addEventListener('click', () => runCheck(true));
     }
 
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            runCheck(false);
-        }
-    });
-
     if (openBtn) {
         openBtn.textContent = isBar ? '🚀 Vào màn hình Pha Chế (Bar) ngay' : '🚀 Vào màn hình Order ngay';
     }
 
+    // Chỉ kiểm tra 1 lần duy nhất khi mở trang — sau đó hoàn toàn bấm tay để không tốn lượt API!
     runCheck(false);
 })();
