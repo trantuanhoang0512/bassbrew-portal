@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Bass &amp; Brew" />
     <meta name="theme-color" content="#0A0B0F" />
-    <link rel="manifest" href="./manifest-order.json" />
+    <!-- Không gắn manifest tĩnh có start_url cố định vì iOS Safari sẽ cắt mất ?g=<GistId> khi bấm Thêm vào MH chính! -->
     <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-order-192.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="./icons/icon-order-512.png" />
     <link rel="icon" type="image/png" href="./icons/icon-order-192.png" />
@@ -27,14 +27,15 @@
         <button id="portal-retry-btn" type="button" class="btn btn-primary">🔄 Thử kết nối lại ngay</button>
         <div id="portal-pin-guide" class="pin-guide">
             <b>📌 Mẹo ghim 1 lần dùng mãi mãi (không bao giờ 502):</b><br />
-            1. Ngay tại màn hình này, bấm nút <b>Chia sẻ (↑)</b> ở đáy Safari.<br />
+            1. Ngay tại màn hình này (TRƯỚC khi bấm Vào Order), bấm nút <b>Chia sẻ (↑)</b> ở đáy Safari.<br />
             2. Chọn <b>Thêm vào MH chính (Add to Home Screen)</b>.<br />
             3. Từ lần sau bấm icon ngoài màn hình sẽ <b>TỰ ĐỘNG vào thẳng Order</b> dù laptop đổi link 4G!
         </div>
         <div class="portal-footer">
             <a id="portal-switch-link" href="./bar.html">🔔 Chuyển sang màn hình Pha Chế (Bar)</a>
+            <div id="portal-gist-tag" style="margin-top:6px; font-size:11px; color:#64748B;"></div>
         </div>
     </main>
-    <script src="./portal.js?v=3"></script>
+    <script src="./portal.js?v=4"></script>
 </body>
 </html>

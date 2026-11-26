@@ -13,6 +13,9 @@
         window.navigator.standalone === true ||
         (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
 
+    const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent || '') ||
+        (/Macintosh/i.test(navigator.userAgent || '') && navigator.maxTouchPoints > 1);
+
     let gistId = DEFAULT_GIST_ID;
     if (/^[a-f0-9]{20,64}$/i.test(paramGist)) {
         gistId = paramGist;
@@ -24,6 +27,32 @@
         } catch {}
     }
 
+    // Trên Android/Chrome (KHÔNG phải iOS): tiêm manifest động giữ nguyên 100% ?g=<gistId> trong start_url!
+    // Trên iOS: giữ nguyên meta apple-mobile-web-app-capable (KHÔNG gắn <link rel="manifest">) để Safari ghim chính xác nguyên URL kèm ?g=...
+    if (!isIos) {
+        try {
+            const baseDir = window.location.href.split('?')[0].replace(/[^/]+$/, '');
+            const manifestObj = {
+                name: isBar ? 'Bass & Brew — Pha Chế' : 'Bass & Brew — Order',
+                short_name: isBar ? 'Bass & Brew Bar' : 'Bass & Brew',
+                start_url: window.location.href,
+                scope: baseDir,
+                display: 'standalone',
+                background_color: '#0A0B0F',
+                theme_color: '#0A0B0F',
+                icons: [
+                    { src: baseDir + (isBar ? 'icons/icon-bar-192.png' : 'icons/icon-order-192.png'), sizes: '192x192', type: 'image/png' },
+                    { src: baseDir + (isBar ? 'icons/icon-bar-512.png' : 'icons/icon-order-512.png'), sizes: '512x512', type: 'image/png' }
+                ]
+            };
+            const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = URL.createObjectURL(blob);
+            document.head.appendChild(link);
+        } catch {}
+    }
+
     const statusEl = document.getElementById('portal-status');
     const detailEl = document.getElementById('portal-detail');
     const openBtn = document.getElementById('portal-open-btn');
@@ -31,6 +60,11 @@
     const pinGuideEl = document.getElementById('portal-pin-guide');
     const spinnerEl = document.getElementById('portal-spinner');
     const switchLink = document.getElementById('portal-switch-link');
+    const gistTagEl = document.getElementById('portal-gist-tag');
+
+    if (gistTagEl && gistId) {
+        gistTagEl.textContent = `Mã cổng quán: …${gistId.slice(-6)}`;
+    }
 
     if (switchLink && gistId !== DEFAULT_GIST_ID) {
         const baseHref = switchLink.getAttribute('href') || '';
@@ -46,6 +80,7 @@
 
     let checking = false;
     let currentDestUrl = '';
+    let hiddenAtMs = 0;
 
     function setState(kind, headline, detail, showOpenBtn) {
         if (statusEl) {
@@ -85,7 +120,7 @@
             }
         } catch {}
 
-        // 2. Dự phòng raw Gist nếu chạm giới hạn API IP công cộng
+        // 2. Dự phòng raw Gist CDN nếu chạm giới hạn API IP công cộng
         try {
             const ctrl = new AbortController();
             const t = setTimeout(() => ctrl.abort(), 6000);
@@ -197,6 +232,21 @@
         openBtn.textContent = isBar ? '🚀 Vào màn hình Pha Chế (Bar) ngay' : '🚀 Vào màn hình Order ngay';
     }
 
-    // Chỉ kiểm tra 1 lần duy nhất khi mở trang — sau đó hoàn toàn bấm tay để không tốn lượt API!
+    // Khi thoát app ra nền rồi mở lại icon đã ghim trên iPhone -> kiểm tra lại đúng 1 lần (không auto-poll 4 giây!)
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            hiddenAtMs = Date.now();
+        } else if (document.visibilityState === 'visible' && isStandalone && hiddenAtMs > 0 && (Date.now() - hiddenAtMs) >= 3000) {
+            hiddenAtMs = 0;
+            runCheck(false);
+        }
+    });
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted && isStandalone) {
+            runCheck(false);
+        }
+    });
+
+    // Kiểm tra 1 lần duy nhất khi mở trang — sau đó hoàn toàn bấm tay để không tốn lượt API!
     runCheck(false);
 })();
