@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0A0B0F" />
     <link rel="icon" type="image/png" href="./icons/icon-order-192.png" />
     <title>Bass &amp; Brew POS — Cổng Kết Nối Cố Định</title>
-    <link rel="stylesheet" href="./portal.css?v=1" />
+    <link rel="stylesheet" href="./portal.css?v=3" />
 </head>
 <body>
     <main class="portal-card">
@@ -16,6 +16,7 @@
         <p class="portal-detail">Chọn màn hình muốn vào — tự động nối tới máy chủ mới nhất không cần quét lại mã QR:</p>
         <a id="go-order" href="./order.html" class="btn btn-primary">📱 Vào màn hình Order (Ngoài bàn)</a>
         <a id="go-bar" href="./bar.html" class="btn btn-secondary">🔔 Vào màn hình Pha Chế (Quầy Bar)</a>
+        <a id="go-admin" href="./admin.html" class="btn btn-admin">👑 Vào Quản Trị &amp; Đồ Thị (Chủ quán)</a>
     </main>
     <script>
         (function () {
@@ -23,6 +24,7 @@
             if (g) {
                 document.getElementById('go-order').href = './order.html?g=' + encodeURIComponent(g);
                 document.getElementById('go-bar').href = './bar.html?g=' + encodeURIComponent(g);
+                document.getElementById('go-admin').href = './admin.html?g=' + encodeURIComponent(g);
             }
         })();
     </script>

@@ -6,7 +6,9 @@
     const paramGist = (params.get('g') || '').trim();
     const forceAuto = params.get('auto') === '1';
     const targetPath = (document.body.getAttribute('data-target') || '/order').trim();
-    const isBar = targetPath.toLowerCase().includes('bar');
+    const targetLower = targetPath.toLowerCase();
+    const isBar = targetLower.includes('bar');
+    const isAdmin = targetLower.includes('admin');
 
     // Phát hiện đang mở từ icon đã ghim ngoài màn hình chính (PWA standalone)
     const isStandalone =
@@ -33,17 +35,19 @@
         try {
             const baseDir = window.location.href.split('?')[0].replace(/[^/]+$/, '');
             const manifestObj = {
-                name: isBar ? 'Bass & Brew — Pha Chế' : 'Bass & Brew — Order',
-                short_name: isBar ? 'Bass & Brew Bar' : 'Bass & Brew',
+                name: isAdmin ? 'Bass & Brew — Quản Trị' : (isBar ? 'Bass & Brew — Pha Chế' : 'Bass & Brew — Order'),
+                short_name: isAdmin ? 'B&B Quản Trị' : (isBar ? 'Bass & Brew Bar' : 'Bass & Brew'),
                 start_url: window.location.href,
                 scope: baseDir,
                 display: 'standalone',
                 background_color: '#0A0B0F',
                 theme_color: '#0A0B0F',
-                icons: [
-                    { src: baseDir + (isBar ? 'icons/icon-bar-192.png' : 'icons/icon-order-192.png'), sizes: '192x192', type: 'image/png' },
-                    { src: baseDir + (isBar ? 'icons/icon-bar-512.png' : 'icons/icon-order-512.png'), sizes: '512x512', type: 'image/png' }
-                ]
+                icons: isAdmin
+                    ? [{ src: baseDir + 'icons/icon-app-256.png', sizes: '256x256', type: 'image/png' }]
+                    : [
+                        { src: baseDir + (isBar ? 'icons/icon-bar-192.png' : 'icons/icon-order-192.png'), sizes: '192x192', type: 'image/png' },
+                        { src: baseDir + (isBar ? 'icons/icon-bar-512.png' : 'icons/icon-order-512.png'), sizes: '512x512', type: 'image/png' }
+                    ]
             };
             const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
             const link = document.createElement('link');
@@ -59,18 +63,19 @@
     const retryBtn = document.getElementById('portal-retry-btn');
     const pinGuideEl = document.getElementById('portal-pin-guide');
     const spinnerEl = document.getElementById('portal-spinner');
-    const switchLink = document.getElementById('portal-switch-link');
     const gistTagEl = document.getElementById('portal-gist-tag');
 
     if (gistTagEl && gistId) {
-        gistTagEl.textContent = `Mã cổng quán: …${gistId.slice(-6)} • v5`;
+        gistTagEl.textContent = `Mã cổng quán: …${gistId.slice(-6)} • v6`;
     }
 
-    if (switchLink && gistId) {
-        const baseHref = switchLink.getAttribute('href') || '';
-        if (baseHref && !baseHref.includes('?')) {
-            switchLink.setAttribute('href', `${baseHref}?g=${encodeURIComponent(gistId)}`);
-        }
+    if (gistId) {
+        document.querySelectorAll('.portal-switch-link, #portal-switch-link').forEach((el) => {
+            const baseHref = el.getAttribute('href') || '';
+            if (baseHref && !baseHref.includes('?')) {
+                el.setAttribute('href', `${baseHref}?g=${encodeURIComponent(gistId)}`);
+            }
+        });
     }
 
     // Ẩn khung hướng dẫn ghim khi đã mở từ icon ngoài màn hình chính
@@ -84,6 +89,7 @@
     let lastCheckedAtMs = 0;
 
     function defaultOpenLabel() {
+        if (isAdmin) return '👑 Vào Trang Quản Trị & Đồ Thị ngay';
         return isBar ? '🚀 Vào màn hình Pha Chế (Bar) ngay' : '🚀 Vào màn hình Order ngay';
     }
 

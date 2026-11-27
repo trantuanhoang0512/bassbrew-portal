@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="B&amp;B Quản Trị" />
+    <meta name="theme-color" content="#0A0B0F" />
+    <!-- Không gắn manifest tĩnh có start_url cố định vì iOS Safari sẽ cắt mất ?g=<GistId> khi bấm Thêm vào MH chính! -->
+    <link rel="apple-touch-icon" sizes="256x256" href="./icons/icon-app-256.png" />
+    <link rel="icon" type="image/png" href="./icons/icon-app-256.png" />
+    <title>Bass &amp; Brew — Quản Trị</title>
+    <link rel="stylesheet" href="./portal.css?v=3" />
+</head>
+<body data-target="/admin">
+    <main class="portal-card portal-card-admin">
+        <img src="./images/logo-full.png" alt="Bass &amp; Brew" class="portal-logo" />
+        <div class="neon-line"></div>
+        <div class="role-badge role-admin">👑 QUẢN TRỊ CHỦ QUÁN — CỔNG CỐ ĐỊNH 0Đ</div>
+        <div id="portal-spinner" class="spinner"></div>
+        <div id="portal-status" class="portal-status loading">🔄 Đang tìm máy chủ Bass &amp; Brew...</div>
+        <p id="portal-detail" class="portal-detail">Tự động nối tới đường truyền mới nhất của máy chủ — xem đồ thị thống kê &amp; chuyển nhanh Order / Bar trên 1 máy.</p>
+        <a id="portal-open-btn" href="#" class="btn btn-primary" style="display:none;">👑 Vào Trang Quản Trị &amp; Đồ Thị ngay</a>
+        <button id="portal-retry-btn" type="button" class="btn btn-primary" style="margin-top:8px;">🔄 Thử kết nối lại ngay</button>
+        <div id="portal-pin-guide" class="pin-guide">
+            <b>📌 Mẹo ghim điện thoại Chủ quán (1 lần dùng mãi mãi):</b><br />
+            1. Ngay tại màn hình này (TRƯỚC khi bấm Vào Quản Trị), bấm <b>Chia sẻ (↑)</b> ở đáy Safari.<br />
+            2. Chọn <b>Thêm vào MH chính (Add to Home Screen)</b>.<br />
+            3. Từ lần sau bấm icon ngoài màn hình sẽ <b>TỰ ĐỘNG vào thẳng Quản Trị</b>, xem đồ thị &amp; chuyển 1 chạm sang <b>Order / Bar</b>!
+        </div>
+        <div class="portal-footer">
+            <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+                <a class="portal-switch-link" href="./order.html">📱 Chuyển sang Order</a>
+                <a class="portal-switch-link" href="./bar.html">🔔 Chuyển sang Bar</a>
+            </div>
+            <div id="portal-gist-tag" style="margin-top:6px; font-size:11px; color:#64748B;"></div>
+        </div>
+    </main>
+    <script src="./portal.js?v=6"></script>
+</body>
+</html>
